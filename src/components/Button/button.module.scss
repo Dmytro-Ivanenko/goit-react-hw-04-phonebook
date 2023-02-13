@@ -1,0 +1,15 @@
+.button {
+  max-width: 150px;
+  cursor: pointer;
+  background-color: beige;
+
+  &:active {
+    color: red;
+  }
+  &:hover,
+  &:focus {
+    background-color: bisque;
+  }
+
+  border-radius: 5px;
+}
