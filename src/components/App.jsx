@@ -12,19 +12,6 @@ const App = () => {
 	const [contacts, setContacts] = useState([]);
 	const [filter, setFilter] = useState('');
 
-	// get contacts from localStorage
-	useEffect(() => {
-		const contacts = JSON.parse(localStorage.getItem('contacts'));
-
-		if (contacts?.length) {
-			setContacts(contacts);
-		}
-	}, []);
-	// set contact to localStorage
-	useEffect(() => {
-		localStorage.setItem('contacts', JSON.stringify(contacts));
-	}, [contacts]);
-
 	const addContacts = (newContact) => {
 		setContacts((prevContacts) => {
 			return [...prevContacts, newContact];
@@ -38,6 +25,25 @@ const App = () => {
 			});
 		});
 	};
+
+	const onChangeFilter = ({ target }) => {
+		setFilter(target.value);
+	};
+
+	// get contacts from localStorage
+	useEffect(() => {
+		const contacts = JSON.parse(localStorage.getItem('contacts'));
+
+		if (contacts?.length) {
+			setContacts(contacts);
+		}
+	}, []);
+
+	// set contact to localStorage
+	useEffect(() => {
+		localStorage.setItem('contacts', JSON.stringify(contacts));
+	}, [contacts]);
+	// ---------------------------------------------------------------------
 
 	// FORM
 	const handleSubmitForm = ({ name, number }) => {
@@ -70,10 +76,6 @@ const App = () => {
 	};
 
 	// FILTER
-	const onChangeFilter = ({ target }) => {
-		setFilter(target.value);
-	};
-
 	const filteredList = (filterName) => {
 		return contacts.filter(({ name }) => {
 			return name.toLowerCase().includes(filterName.toLowerCase());
