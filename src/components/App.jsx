@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import uniqid from 'uniqid';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
@@ -8,49 +8,41 @@ import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 import Notification from './Notification/Notification';
 
-class App extends Component {
-	state = {
-		contacts: [],
-		filter: '',
-	};
+const App = () => {
+	const [contacts, setContacts] = useState([]);
+	const [filter, setFilter] = useState('');
 
-	//  APP
-	componentDidMount() {
+	// get contacts from localStorage
+	useEffect(() => {
 		const contacts = JSON.parse(localStorage.getItem('contacts'));
 
 		if (contacts?.length) {
-			this.setState({ contacts });
+			setContacts(contacts);
 		}
-	}
+	}, []);
+	// set contact to localStorage
+	useEffect(() => {
+		localStorage.setItem('contacts', JSON.stringify(contacts));
+	}, [contacts]);
 
-	componentDidUpdate(prevProps, prevState) {
-		const { contacts } = this.state;
-		if (prevState.contacts?.length !== contacts.length) {
-			localStorage.setItem('contacts', JSON.stringify(contacts));
-		}
-	}
-
-	addContacts = (newContact) => {
-		this.setState(({ contacts }) => {
-			return { contacts: [...contacts, newContact] };
+	const addContacts = (newContact) => {
+		setContacts((prevContacts) => {
+			return [...prevContacts, newContact];
 		});
 	};
 
-	removeContact = (idDelete) => {
-		this.setState((prevState) => {
-			return {
-				contacts: prevState.contacts.filter(({ id }) => {
-					return !(id === idDelete);
-				}),
-			};
+	const removeContact = (idDelete) => {
+		setContacts((prevContacts) => {
+			return prevContacts.filter(({ id }) => {
+				return !(id === idDelete);
+			});
 		});
 	};
 
 	// FORM
-	handleSubmitForm = ({ name, number }) => {
+	const handleSubmitForm = ({ name, number }) => {
 		// name check
-
-		if (!this.isNameFree(name)) {
+		if (!isNameFree(name)) {
 			return;
 		}
 
@@ -61,11 +53,11 @@ class App extends Component {
 		};
 
 		// add new contact into state
-		this.addContacts(newContact);
+		addContacts(newContact);
 	};
 
-	isNameFree = (nameToCheck) => {
-		const result = this.state.contacts.filter(
+	const isNameFree = (nameToCheck) => {
+		const result = contacts.filter(
 			({ name }) => name.toLowerCase() === nameToCheck.toLowerCase()
 		);
 
@@ -78,43 +70,37 @@ class App extends Component {
 	};
 
 	// FILTER
-	onChangeFilter = (evn) => {
-		this.setState({ filter: evn.target.value });
+	const onChangeFilter = ({ target }) => {
+		setFilter(target.value);
 	};
 
-	filteredList = (filterName) => {
-		return this.state.contacts.filter(({ name }) => {
+	const filteredList = (filterName) => {
+		return contacts.filter(({ name }) => {
 			return name.toLowerCase().includes(filterName.toLowerCase());
 		});
 	};
 
-	// RENDER
-	render() {
-		const { filter, contacts } = this.state;
-		return (
-			<>
-				<Section title="Phonebook">
-					<ContactForm onSubmitForm={this.handleSubmitForm} />
-				</Section>
+	return (
+		<>
+			<Section title="Phonebook">
+				<ContactForm onSubmitForm={handleSubmitForm} />
+			</Section>
 
-				<Section title="Contacts">
-					{contacts.length > 0 ? (
-						<>
-							<Filter onChangeFilter={this.onChangeFilter} value={filter} />
-							<ContactList
-								contactsArr={
-									filter.length > 0 ? this.filteredList(filter) : contacts
-								}
-								deleteFunc={this.removeContact}
-							/>
-						</>
-					) : (
-						<Notification message="There is no contacts"></Notification>
-					)}
-				</Section>
-			</>
-		);
-	}
-}
+			<Section title="Contacts">
+				{contacts.length > 0 ? (
+					<>
+						<Filter onChangeFilter={onChangeFilter} value={filter} />
+						<ContactList
+							contactsArr={filter.length > 0 ? filteredList(filter) : contacts}
+							deleteFunc={removeContact}
+						/>
+					</>
+				) : (
+					<Notification message="There is no contacts"></Notification>
+				)}
+			</Section>
+		</>
+	);
+};
 
 export default App;
