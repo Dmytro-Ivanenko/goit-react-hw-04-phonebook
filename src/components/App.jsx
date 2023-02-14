@@ -9,7 +9,10 @@ import Filter from './Filter/Filter';
 import Notification from './Notification/Notification';
 
 const App = () => {
-	const [contacts, setContacts] = useState([]);
+	const [contacts, setContacts] = useState(() =>
+		JSON.parse(localStorage.getItem('contacts') ?? [])
+	);
+
 	const [filter, setFilter] = useState('');
 
 	const addContacts = (newContact) => {
@@ -29,15 +32,6 @@ const App = () => {
 	const onChangeFilter = ({ target }) => {
 		setFilter(target.value);
 	};
-
-	// get contacts from localStorage
-	useEffect(() => {
-		const contacts = JSON.parse(localStorage.getItem('contacts'));
-
-		if (contacts?.length) {
-			setContacts(contacts);
-		}
-	}, []);
 
 	// set contact to localStorage
 	useEffect(() => {
@@ -63,11 +57,11 @@ const App = () => {
 	};
 
 	const isNameFree = (nameToCheck) => {
-		const result = contacts.filter(
+		const result = contacts.find(
 			({ name }) => name.toLowerCase() === nameToCheck.toLowerCase()
 		);
 
-		if (result.length > 0) {
+		if (result) {
 			Notify.warning(`${nameToCheck} is already in contacts.`);
 			return false;
 		}
@@ -93,7 +87,7 @@ const App = () => {
 					<>
 						<Filter onChangeFilter={onChangeFilter} value={filter} />
 						<ContactList
-							contactsArr={filter.length > 0 ? filteredList(filter) : contacts}
+							contactsArr={filteredList(filter)}
 							deleteFunc={removeContact}
 						/>
 					</>
