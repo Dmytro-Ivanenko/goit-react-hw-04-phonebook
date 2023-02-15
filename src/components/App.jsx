@@ -9,10 +9,9 @@ import Filter from './Filter/Filter';
 import Notification from './Notification/Notification';
 
 const App = () => {
-	const [contacts, setContacts] = useState(() =>
-		JSON.parse(localStorage.getItem('contacts') ?? [])
+	const [contacts, setContacts] = useState(
+		() => JSON.parse(localStorage.getItem('contacts')) ?? []
 	);
-
 	const [filter, setFilter] = useState('');
 
 	const addContacts = (newContact) => {
